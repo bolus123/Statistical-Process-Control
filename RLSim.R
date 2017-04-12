@@ -2,6 +2,10 @@
 
 source('https://raw.githubusercontent.com/bolus123/Statistical-Process-Control/Nonparametric-Shewhart/FP.R')
                         #Getting the function of calculating modified U statistics
+                        
+#source('https://raw.githubusercontent.com/bolus123/Statistical-Process-Control/Nonparametric-Shewhart/precedence%20chart.R')
+#                        #Getting the function of precedance test
+                        
 ####################################################################################################################################################
     #Simulate data
 ####################################################################################################################################################
@@ -221,14 +225,15 @@ get.RL <- function(m, n = NULL, Chart = 'WM', xtype = 'norm', ytype = 'norm', L 
                                                                                                        #The purpose of this function is
     rl <- 0                                                                                            #to get each RL
     
+    x <- get.data(m, 1, type = xtype)                                                                  #generate x
+    
     repeat{
     
         if (is.null(n)) {
         
         
         } else {
-        
-            x <- get.data(m, 1, type = xtype)                                                          #generate x
+                                                           
             y <- get.data(n, subgroup.amt = subgroup.amt, type = ytype, shift = shift)                 #generate y
         
             if (Chart == 'WM') {                                                                       #do WM chart
