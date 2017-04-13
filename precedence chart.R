@@ -3,7 +3,7 @@ source('https://raw.githubusercontent.com/bolus123/Statistical-Process-Control/m
 
 median.sim <- function(n, p, maxsim = 10000){
 
-    unlist(lapply(1:maxsim, function(x) quantile(rnorm(5), p)))
+    unlist(lapply(1:maxsim, function(x) quantile(rnorm(n), p)))
 
 }
 
@@ -111,7 +111,7 @@ prec.chart <- function(X, Y, percentile = 0.5, ARL = 370, graph = TRUE, x.maxsim
     Lu <- prec.limits.sim(m, n, percentile, ARL, x.maxsim = x.maxsim, y.maxsim = y.maxsim)
 
     a <- round(Lu[1] * m)
-    b <- round(Lu[2] * m)
+    b <- m - a + 1
     
     r <- rank(X)
     
@@ -163,7 +163,7 @@ RL.prec <- function(
     
         X <- get.data(m, 1, type = xtype)
         a <- round(Lu[1] * m)
-        b <- round(Lu[2] * m)
+        b <- m - a + 1
         
         r <- rank(X)
         
@@ -196,6 +196,22 @@ RL.prec <- function(
 
 
 }
+
+#debug(RL.prec)
+#debug(prec.limits.sim)
+a <- RL.prec(
+                100, 
+                20, 
+                0.5, 
+                ARL = 370, 
+                xtype = 'norm', 
+                ytype = 'norm', 
+                subgroup.amt = 1000,
+                shift = 0,
+                x.maxsim = 1000, 
+                y.maxsim = 1000, 
+                maxsim = 1000
+)
 
 ########################################
     #example
