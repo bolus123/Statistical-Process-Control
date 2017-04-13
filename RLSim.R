@@ -335,9 +335,12 @@ bisec.RLsim <- function(
     
     for (iter in 1:maxiter){
     
-        cat('iteration:', iter, '\n')
+        ##cat('iteration:', iter, '\n')
     
         L.mid <- (L.lower + L.upper) / 2
+	    
+	cat('iteration:', iter, ', L:', L.mid,  '\n')
+	    
         Sim.RLD <- RL.stat.sim(m, n, Chart, xtype, ytype, L.mid, shift, subgroup.amt, maxsim)
         
         Sim.ARL <- Sim.RLD$ARL
