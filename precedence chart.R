@@ -194,6 +194,7 @@ RL.prec <- function(
     
     }
 
+    rl.sim
 
 }
 
