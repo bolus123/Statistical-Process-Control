@@ -1,6 +1,6 @@
 ####################################################################################################################################################
 
-source('https://raw.githubusercontent.com/bolus123/Statistical-Process-Control/Nonparametric-Shewhart/FP.R')
+source('https://raw.githubusercontent.com/bolus123/Statistical-Process-Control/master/FP.R')
                         #Getting the function of calculating modified U statistics
                         
 #source('https://raw.githubusercontent.com/bolus123/Statistical-Process-Control/Nonparametric-Shewhart/precedence%20chart.R')
