@@ -313,8 +313,7 @@ RL.stat.sim <- function(
     
     clusterExport(
             cl,
-            ls()[sapply(ls(), function(x) is.function(get(x)))],
-            envir = environment()
+            ls(envir = .GlobalEnv)[sapply(ls(envir = .GlobalEnv), function(x) is.function(get(x)))]
     )
 
     
