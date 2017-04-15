@@ -1,6 +1,6 @@
 ####################################################################################################################################################
 
-source('https://raw.githubusercontent.com/bolus123/Statistical-Process-Control/master/FP.R')
+source('https://raw.githubusercontent.com/bolus123/Statistical-Process-Control/Nonparametric-Shewhart/FP.R')
                         #Getting the function of calculating modified U statistics
                         
 #source('https://raw.githubusercontent.com/bolus123/Statistical-Process-Control/Nonparametric-Shewhart/precedence%20chart.R')
@@ -301,7 +301,7 @@ RL.stat.sim <- function(
    
     require(parallel)
                                                                                                         #The purpose of this function is
-    RES <- rep(NA, maxsim)                                                                              #to get RL distribution by simulations
+    #RES <- rep(NA, maxsim)                                                                             #to get RL distribution by simulations
      
     cl <- makeCluster(cores)
     
@@ -311,14 +311,25 @@ RL.stat.sim <- function(
             envir = environment()
     )
 
-     #
-    for (sim in 1:maxsim) {                                                                             #
+    
+
+    RES <- parLapply(
+                cl,
+                1:maxsim,
+                function(sim) get.RL(m, n, Chart, xtype, ytype, L, shift, subgroup.amt)
+    
+    
+    )
+    
+    #for (sim in 1:maxsim) {                                                                             #
+    #                                                                                                    #
+    #    RES[sim] <- get.RL(m, n, Chart, xtype, ytype, L, shift, subgroup.amt)                           #repeatly get RL until sim > maxsim
+    #                                                                                                    #
+    #}                                                                                                   #
                                                                                                         #
-        RES[sim] <- get.RL(m, n, Chart, xtype, ytype, L, shift, subgroup.amt)                           #repeatly get RL until sim > maxsim
-                                                                                                        #
-    }                                                                                                   #
-                                                                                                        #
-         
+    RES <- unlist(RES)
+
+     
     stopCluster(cl)
          #
     list(
