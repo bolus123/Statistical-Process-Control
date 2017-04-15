@@ -287,17 +287,40 @@ get.RL <- function(m, n = NULL, Chart = 'WM', xtype = 'norm', ytype = 'norm', L 
 
 
 
-RL.stat.sim <- function(m, n = NULL, Chart = 'WM', xtype = 'norm', ytype = 'norm', L = 3, shift = 0, subgroup.amt = 1000, maxsim = 10000){
+RL.stat.sim <- function(
+                m, n = NULL, 
+                Chart = 'WM', 
+                xtype = 'norm', 
+                ytype = 'norm', 
+                L = 3, 
+                shift = 0, 
+                subgroup.amt = 1000, 
+                maxsim = 10000,
+                cores = 1
+){
+   
+    require(parallel)
                                                                                                         #The purpose of this function is
     RES <- rep(NA, maxsim)                                                                              #to get RL distribution by simulations
-                                                                                                        #
+     
+    cl <- makeCluster(cores)
+    
+    clusterExport(
+            cl, 
+            c('m', 'n', 'Chart', 'xtype', 'ytype', 'L', 'shift', 'subgroup.amt', 'get.RL'), 
+            envir = environment()
+    )
+
+     #
     for (sim in 1:maxsim) {                                                                             #
                                                                                                         #
         RES[sim] <- get.RL(m, n, Chart, xtype, ytype, L, shift, subgroup.amt)                           #repeatly get RL until sim > maxsim
                                                                                                         #
     }                                                                                                   #
                                                                                                         #
-                                                                                                        #
+         
+    stopCluster(cl)
+         #
     list(
         RL = RES, 
         ARL = mean(RES), 
@@ -325,7 +348,8 @@ bisec.RLsim <- function(
                     L.lower.init = 1, 
                     L.upper.init = 5, 
                     maxiter = 1000, 
-                    tol = 1e-6
+                    tol = 1e-6,
+                    cores = 1
 ){
                                                                                 #The purpose of this function is to search
     Given.ARL <- ARL                                                            #L by bisection method
@@ -339,9 +363,9 @@ bisec.RLsim <- function(
     
         L.mid <- (L.lower + L.upper) / 2
 	    
-	cat('iteration:', iter, ', L:', L.mid,  '\n')
+        cat('iteration:', iter, ', L:', L.mid,  '\n')
 	    
-        Sim.RLD <- RL.stat.sim(m, n, Chart, xtype, ytype, L.mid, shift, subgroup.amt, maxsim)
+        Sim.RLD <- RL.stat.sim(m, n, Chart, xtype, ytype, L.mid, shift, subgroup.amt, maxsim, cores)
         
         Sim.ARL <- Sim.RLD$ARL
         
