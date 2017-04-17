@@ -35,13 +35,13 @@ get.data <- function(n, subgroup.amt = 1000, type = c('norm', 't', 'exp', 'chisq
                                                                                                        #
     } else if (type == 'unif'){                                                                        #
 	                                                                                                   #
-		matrix(runif(n * subgroup.amt, -1, 1), ncol = n, nrow = subgroup.amt) + shift                  #Get data from unif(-1, 1)
+	matrix(runif(n * subgroup.amt, -1, 1), ncol = n, nrow = subgroup.amt) + shift                  #Get data from unif(-1, 1)
 	                                                                                                   #
-	} else if (type == 'doubexp'){                                                                     #
+    } else if (type == 'doubexp'){                                                                     #
 	                                                                                                   #
-		matrix(rlaplace(n * subgroup.amt), ncol = n, nrow = subgroup.amt) + shift                      #Get data from double exp(0, 1)
+	matrix(rlaplace(n * subgroup.amt), ncol = n, nrow = subgroup.amt) + shift                      #Get data from double exp(0, 1)
 	                                                                                                   #
-	}                                                                                                  #
+    }                                                                                                  #
 
 
 }
