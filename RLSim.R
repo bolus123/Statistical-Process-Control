@@ -17,9 +17,13 @@ get.data <- function(n, subgroup.amt = 1000, type = c('norm', 't', 'exp', 'chisq
                                                                                                        #
         matrix(rnorm(n * subgroup.amt), ncol = n, nrow = subgroup.amt) + shift                         #Get data from normal(0, 1)
                                                                                                        #
-    } else if (type == 't') {                                                                          #
+    } else if (type == 't.1') {                                                                          #
                                                                                                        #
         matrix(rt(n * subgroup.amt, 1), ncol = n, nrow = subgroup.amt) + shift                         #Get data from t(1)
+                                                                                                       #
+    } else if (type == 't.5' or type == 't') {                                                                          #
+                                                                                                       #
+        matrix(rt(n * subgroup.amt, 5), ncol = n, nrow = subgroup.amt) + shift                         #Get data from t(1)
                                                                                                        #
     } else if (type == 'exp'){                                                                         #
                                                                                                        #
