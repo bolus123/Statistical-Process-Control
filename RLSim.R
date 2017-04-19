@@ -407,6 +407,8 @@ bisec.RLsim <- function(
         
         Sim.ARL <- Sim.RLD$ARL
         
+        cat('iteration:', iter, ', ARL:', Sim.ARL,  '\n')
+        
         if (abs(Given.ARL - Sim.ARL) < tol) break
         
         if (Given.ARL - Sim.ARL > 0){
