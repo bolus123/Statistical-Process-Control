@@ -9,37 +9,43 @@ source('https://raw.githubusercontent.com/bolus123/Statistical-Process-Control/m
 ####################################################################################################################################################
     #Simulate data
 ####################################################################################################################################################
-get.data <- function(n, subgroup.amt = 1000, type = c('norm', 't', 'exp', 'chisq', 'unif', 'doubexp'), shift = 0){
+get.data <- function(
+                n
+                ,subgroup.amt = 1000 
+                ,type = c('norm', 't', 'exp', 'chisq', 'unif', 'doubexp')
+                ,shift = 0
+                ,scale = 1
+){
                                                                                                        #The purpose of this function is to get
 	require(LaplacesDemon)                                                                             #data from different distributions with
                                                                                                        #same median which is equal to their shifts
     if (type == 'norm'){                                                                               #
                                                                                                        #
-        matrix(rnorm(n * subgroup.amt), ncol = n, nrow = subgroup.amt) + shift                         #Get data from normal(0, 1)
+        (matrix(rnorm(n * subgroup.amt), ncol = n, nrow = subgroup.amt) + shift) / scale                         #Get data from normal(0, 1)
                                                                                                        #
     } else if (type == 't.1') {                                                                          #
                                                                                                        #
-        matrix(rt(n * subgroup.amt, 1), ncol = n, nrow = subgroup.amt) + shift                         #Get data from t(1)
+        (matrix(rt(n * subgroup.amt, 1), ncol = n, nrow = subgroup.amt) + shift) / scale                          #Get data from t(1)
                                                                                                        #
     } else if (type == 't.5' || type == 't') {                                                                          #
                                                                                                        #
-        matrix(rt(n * subgroup.amt, 5), ncol = n, nrow = subgroup.amt) + shift                         #Get data from t(5)
+        (matrix(rt(n * subgroup.amt, 5), ncol = n, nrow = subgroup.amt) + shift) / scale                          #Get data from t(5)
                                                                                                        #
     } else if (type == 'exp'){                                                                         #
                                                                                                        #
-        matrix(rexp(n * subgroup.amt, 1) - log(2), ncol = n, nrow = subgroup.amt) + shift              #Get data from exp(1) - median
+        (matrix(rexp(n * subgroup.amt, 1) - log(2), ncol = n, nrow = subgroup.amt) + shift) / scale               #Get data from exp(1) - median
                                                                                                        #
     } else if (type == 'chisq') {                                                                      #
                                                                                                        #
-        matrix(rchisq(n * subgroup.amt, 1) - (1 - 2 / 9) ^ 3, ncol = n, nrow = subgroup.amt) + shift   #Get data from chisq(1) - median
+        (matrix(rchisq(n * subgroup.amt, 1) - (1 - 2 / 9) ^ 3, ncol = n, nrow = subgroup.amt) + shift) / scale    #Get data from chisq(1) - median
                                                                                                        #
     } else if (type == 'unif'){                                                                        #
 	                                                                                                   #
-	matrix(runif(n * subgroup.amt, -1, 1), ncol = n, nrow = subgroup.amt) + shift                  #Get data from unif(-1, 1)
+        (matrix(runif(n * subgroup.amt, -1, 1), ncol = n, nrow = subgroup.amt) + shift) / scale                   #Get data from unif(-1, 1)
 	                                                                                                   #
     } else if (type == 'doubexp'){                                                                     #
 	                                                                                                   #
-	matrix(rlaplace(n * subgroup.amt), ncol = n, nrow = subgroup.amt) + shift                      #Get data from double exp(0, 1)
+        (matrix(rlaplace(n * subgroup.amt), ncol = n, nrow = subgroup.amt) + shift) / scale                       #Get data from double exp(0, 1)
 	                                                                                                   #
     }                                                                                                  #
 
@@ -225,7 +231,17 @@ check.RL <- function(CS, LCL = NULL, UCL = NULL){
 }
 
 
-get.RL <- function(m, n = NULL, Chart = 'WM', xtype = 'norm', ytype = 'norm', L = 3, shift = 0, subgroup.amt = 1000){
+get.RL <- function(
+                m
+                , n = NULL
+                , Chart = 'WM'
+                , xtype = 'norm'
+                , ytype = 'norm'
+                , L = 3
+                , shift = 0
+                , scale = 1
+                , subgroup.amt = 1000
+){
                                                                                                        #The purpose of this function is
     rl <- 0                                                                                            #to get each RL
     
@@ -238,7 +254,7 @@ get.RL <- function(m, n = NULL, Chart = 'WM', xtype = 'norm', ytype = 'norm', L 
         
         } else {
                                                            
-            y <- get.data(n, subgroup.amt = subgroup.amt, type = ytype, shift = shift)                 #generate y
+            y <- get.data(n, subgroup.amt = subgroup.amt, type = ytype, shift = shift, scale = scale)                 #generate y
         
             if (Chart == 'WM') {                                                                       #do WM chart
                                                                                                        #
@@ -298,6 +314,7 @@ RL.stat.sim <- function(
                 ytype = 'norm', 
                 L = 3, 
                 shift = 0, 
+                scale = 1,
                 subgroup.amt = 1000, 
                 maxsim = 10000,
                 cores = 1
@@ -325,7 +342,7 @@ RL.stat.sim <- function(
     RES <- parLapply(
                 cl,
                 1:maxsim,
-                function(sim) get.RL(m, n, Chart, xtype, ytype, L, shift, subgroup.amt)
+                function(sim) get.RL(m, n, Chart, xtype, ytype, L, shift, scale, subgroup.amt)
     
     
     )
@@ -363,6 +380,7 @@ bisec.RLsim <- function(
                     xtype = 'norm', 
                     ytype = 'norm', 
                     shift = 0, 
+                    scale = 1,
                     subgroup.amt = 1000, 
                     maxsim = 10000,
                     L.lower.init = 1, 
@@ -385,7 +403,7 @@ bisec.RLsim <- function(
 	    
         cat('iteration:', iter, ', L:', L.mid,  '\n')
 	    
-        Sim.RLD <- RL.stat.sim(m, n, Chart, xtype, ytype, L.mid, shift, subgroup.amt, maxsim, cores)
+        Sim.RLD <- RL.stat.sim(m, n, Chart, xtype, ytype, L.mid, shift, scale, subgroup.amt, maxsim, cores)
         
         Sim.ARL <- Sim.RLD$ARL
         
