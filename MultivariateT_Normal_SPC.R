@@ -16,8 +16,8 @@ if (sum(c("RevoUtils", "RevoUtilsMath") %in% rownames(installed.packages())) == 
     #parts of MCMC
 ####################################################################################################################################################
 P.empirical <- function(samp, ll, sample.amt, tails = '2-sided') {
-
-    n <- dim(samp)[2]
+                                                              #The purpose of this function is
+    n <- dim(samp)[2]                                         #to obtain empirical probability
 
     upper <- ll
     
@@ -45,10 +45,10 @@ P.empirical <- function(samp, ll, sample.amt, tails = '2-sided') {
 }
 
 root.P.empirical <- function(p, L, samp, nlength, sample.amt, tails = '2-sided'){
-
-    ll <- rep(L, nlength)
+                                                             #The purpose of this function is
+    ll <- rep(L, nlength)                                    #to obtain appropriate L.
     
-    p - P.empirical(samp, ll, sample.amt, tails)
+    p - P.empirical(samp, ll, sample.amt, tails)             #L is the root of this function
 
 }
 
@@ -58,22 +58,22 @@ root.P.empirical <- function(p, L, samp, nlength, sample.amt, tails = '2-sided')
 ####################################################################################################################################################
 
 t.f <- function(x, mu, sigma, nu){
-
-    gamma((nu + 1) / 2) / gamma(nu / 2) / sqrt(nu * pi) / sqrt(sigma) * 
-    (1 + nu ^ (-1) * (x - mu) ^ 2 / sigma) ^ (-(nu + 1) / 2)
-
-}
-
-t.F <- function(x, mu, sigma, nu) {
-
-    integrate(t.f, lower = -Inf, upper = x, mu = mu, sigma = sigma, nu = nu)
+                                                                              #The purpose of this function
+    gamma((nu + 1) / 2) / gamma(nu / 2) / sqrt(nu * pi) / sqrt(sigma) *       #is to calculate pdf of t distribution
+    (1 + nu ^ (-1) * (x - mu) ^ 2 / sigma) ^ (-(nu + 1) / 2)                  #based on Peng Li(2016)
 
 }
 
-root.t.F <- function(p, x, mu, sigma, nu) {
+t.F <- function(x, mu, sigma, nu) {                                            #The purpose of this function is 
+                                                                               #to calculate cdf of t distribution
+    integrate(t.f, lower = -Inf, upper = x, mu = mu, sigma = sigma, nu = nu)   #
+                                                                               #
+}
 
-    p - t.F(x, mu, sigma, nu)$value
-
+root.t.F <- function(p, x, mu, sigma, nu) {                                    #The purpose of this function is
+                                                                               #obtain appropriate quantile 
+    p - t.F(x, mu, sigma, nu)$value                                            #of t distribution
+                                                                               #
 }
     
 MVT.Gibbs.Sampling <- function(sample.amt, nu, Sigma, x.init = 0, burn = 1000){
@@ -272,7 +272,7 @@ get.L.mvt <- function(
                  ,FAP = 0.1
                  #,ARL = 370
                  ,Phase1 = TRUE
-                 ,off.diag = ifelse(Phase1 == TRUE, - 1 /(m - 1), 1 / (m + 1))
+                 ,off.diag = NULL
                  ,alternative = '2-sided'
                  ,maxiter = 10000
                  #,MCMC = FALSE
@@ -281,11 +281,14 @@ get.L.mvt <- function(
                  #,MCMC.burn = 1000
 
 ){
+                                                                              #The purpose of this function is 
+    MCMC <- FALSE                                                             #to obtain L and K based on
+                                                                              #multivariate T.
+                                                                              #MCMC part is not available now.
 
-    MCMC <- FALSE
-
-    corr.P <- corr.f(m = m, off.diag = off.diag)  
-    #pu <- ifelse(alternative == '2-sided', 1 - (1 - (1 - 1 / ARL) ^ (1 / m)) / 2, (1 - 1 / ARL) ^ (1 / m))
+    #if (off.diag == NULL) off.diag <- ifelse(Phase1 == TRUE, - 1 /(m - 1), 1 / (m + 1))
+    
+    corr.P <- corr.f(m = m, off.diag = off.diag)                              #get correlation matrix with equal correlations
 
     pu <- 1 - FAP
     
@@ -308,13 +311,13 @@ get.L.mvt <- function(
                 qmvt(pu, df = nu, sigma = corr.P, tail = 'both.tails', maxiter = maxiter)$quantile,
                 qmvt(pu, df = nu, sigma = corr.P, maxiter = maxiter)$quantile
             )
- 
+                                                      #get L by multivariate T
         
 
     }
     
     
-    K <- L * c4.f(nu) * sqrt((m - 1) / m)
+    K <- L * c4.f(nu) * sqrt((m - 1) / m)             #get K
    
     list(L = L, K = K)
 
@@ -325,10 +328,10 @@ get.L.mvt <- function(
 ####################################################################################################################################################
 
 root.mvn.F <- function(K, m, nu, Y, sigma, pu, alternative = '2-sided') {
-
-    s <- length(Y)
-
-    L <- K / sqrt((m - 1) / m * nu) * Y * c4.f(nu)
+                                                            #The purpose of this function is
+    s <- length(Y)                                          #to obtain appropriate K
+                                                            #by multivariate normal
+    L <- K / sqrt((m - 1) / m * nu) * Y * c4.f(nu)          #
 
     pp <- lapply(
             1:s,
@@ -359,7 +362,7 @@ get.L.mvn <- function(
                  ,FAP = 0.1
                  #,ARL = 370
                  ,Phase1 = TRUE
-                 ,off.diag = ifelse(Phase1 == TRUE, - 1 /(m - 1), 1 / (m + 1))
+                 ,off.diag = NULL
                  ,alternative = '2-sided'
                  ,maxsim = 10000
                  ,maxiter = 10000
@@ -368,12 +371,13 @@ get.L.mvn <- function(
                  #,MCMC.maxsim = 10000
                  #,MCMC.burn = 1000
 
-){
-
-    MCMC <- FALSE
+){                                                          #The purpose of this function is 
+                                                            #to obtain L and K based on
+    MCMC <- FALSE                                           #multivariate normal.
+                                                            #MCMC part is not available now.
+    #if (is.null(off.diag)) off.diag <- ifelse(Phase1 == TRUE, - 1 /(m - 1), 1 / (m + 1))
     
     corr.P <- corr.f(m = m, off.diag = off.diag)  
-    #pu <- ifelse(alternative == '2-sided', 1 - (1 - (1 - 1 / ARL) ^ (1 / m)) / 2, (1 - 1 / ARL) ^ (1 / m))
 
     pu <- 1 - FAP
     
@@ -431,19 +435,24 @@ get.L <- function(
             ,FAP = 0.1
             #,ARL = 370
             ,Phase1 = TRUE
-            ,off.diag = ifelse(Phase1 == TRUE, - 1 /(m - 1), 1 / (m + 1))
-            ,alternative = c('2-sided')
-            ,maxsim = 10000
+            ,off.diag = NULL
+            ,alternative = '2-sided'
             ,maxiter = 10000
-            ,method = c('direct')
+            ,method = 'direct'
+            ,indirect.maxsim = 10000
             #,MCMC = FALSE
             #,MCMC.search.interval = c(1, 5)
             #,MCMC.maxsim = 10000
             #,MCMC.burn = 1000
 
-){
+){                                                  #The purpose of this function is to obtain L and K
+                                                    #by multivariate T or multivariate normal.
+                                                    #Multivariate normal is so time-consuming
+                                                    #that I do not recommend.
+    if (is.null(off.diag)) off.diag <- ifelse(Phase1 == TRUE, - 1 /(m - 1), 1 / (m + 1))
 
-    if (method == 'direct') {
+
+    if (method == 'direct') {                       #using multivariate T to obtain L and K
     
         get.L.mvt(
             m = m
@@ -452,12 +461,10 @@ get.L <- function(
             ,Phase1 = Phase1
             ,off.diag = off.diag
             ,alternative = alternative
-            ,maxsim = maxsim
             ,maxiter = maxiter
-            ,method = method
         )
     
-    } else {
+    } else {                                       #using multivariate normal to obtain L and K
     
         get.L.mvn(
             m = m
@@ -466,9 +473,8 @@ get.L <- function(
             ,Phase1 = Phase1
             ,off.diag = off.diag
             ,alternative = alternative
-            ,maxsim = maxsim
+            ,maxsim = indirect.maxsim
             ,maxiter = maxiter
-            ,method = method
         )
     
     }
@@ -476,166 +482,30 @@ get.L <- function(
 
 }
 
-
-
-
-
-###test
-#
-#get.c <- function(L, m, nu, Phase1 = TRUE) ifelse(Phase1 == TRUE, L * sqrt((m - 1) / m), L * sqrt((m + 1) / m))
-#
-#l.R.D <- rep(NA, 3)
-#l.R.D[1] <- get.L(30, 29, 1 - (1 - 0.0029)^30, Phase1 = FALSE, alternative = '1-sided')
-#l.R.D[2] <- get.L(60, 59, 1 - (1 - 0.0020)^60, Phase1 = FALSE, alternative = '1-sided')
-#l.R.D[3] <- get.L(100, 99, 1 - (1 - 0.0018)^100, Phase1 = FALSE, alternative = '1-sided')
-#get.c(l.R.D[1], 30, 29, Phase1 = FALSE)
-#get.c(l.R.D[2], 60, 59, Phase1 = FALSE)
-#get.c(l.R.D[3], 100, 99, Phase1 = FALSE)
-#
-#get.k <- function(L, m, nu, Phase1 = TRUE) ifelse(Phase1 == TRUE, L * c4.f(nu) * sqrt((m - 1) / m), L * c4.f(nu) * c4.f(nu) * sqrt((m - 1) / m))
-#
-#l.R.D <- rep(NA, 3)
-#l.C.J[1] <- get.L(5, 20, 0.05, Phase1 = TRUE, alternative = '2-sided')
-#l.C.J[2] <- get.L(10, 40, 0.05, Phase1 = TRUE, alternative = '2-sided')
-#l.C.J[3] <- get.L(15, 60, 0.05, Phase1 = TRUE, alternative = '2-sided')
-#get.k(l.C.J[1], 5, 20, Phase1 = TRUE)
-#get.k(l.C.J[2], 10, 40, Phase1 = TRUE)
-#get.k(l.C.J[3], 15, 60, Phase1 = TRUE)
+####################################################################################################################################################
+    #Example
+####################################################################################################################################################
+#a <- get.L(
+#            m = 15
+#            ,nu = 30
+#            ,FAP = 0.1
+#            ,Phase1 = TRUE
+#            ,alternative = '2-sided'
+#            ,maxiter = 10000
+#            ,method = 'direct'
 #
 #
+#)   
 #
-#m.seq <- c(
-#    3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30,
-#    50, 75, 100, 125, 150, 200, 250, 300
+#
+#b <- get.L(
+#            m = 15
+#            ,nu = 30
+#            ,FAP = 0.1
+#            ,Phase1 = TRUE
+#            ,alternative = '2-sided'
+#            ,maxiter = 10000
+#            ,method = 'indirect'
+#            ,indirect.maxsim = 10000
+#
 #)
-#
-#nu.seq <- c(
-#    3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30,
-#    50, 75, 100, 125, 150, 200, 250, 300
-#)
-#
-#alpha.seq <- c(
-#    0.1, 0.05
-#)
-#
-#record.phase1 <- matrix(NA, ncol = 4, 
-#        nrow = length(m.seq) * length(nu.seq) * length(alpha.seq)
-#)
-#
-#i <- 0
-#for (m in m.seq){
-#    for (nu in nu.seq){
-#        for (alpha in alpha.seq){
-#        
-#            #if (nu < m) next
-#        
-#            i <- i + 1
-#            record.phase1[i, 1] <- alpha
-#            record.phase1[i, 2] <- m
-#            record.phase1[i, 3] <- nu
-#            record.phase1[i, 4] <- get.L(m, nu, alpha, Phase1 = TRUE, alternative = '2-sided')
-#        
-#        }
-#    }
-#}
-#
-#rho.seq <- c(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1)
-#
-#record.phase2 <- matrix(NA, ncol = 5, 
-#        nrow = length(m.seq) * length(n.seq) * length(alpha.seq) * length(rho.seq)
-#)
-#
-#i <- 0
-#for (rho in rho.seq){ 
-#    for (m in m.seq){
-#        for (n in n.seq){
-#            for (alpha in alpha.seq){
-#                i <- i + 1
-#                record.phase2[i, 1] <- alpha
-#                record.phase2[i, 2] <- m
-#                record.phase2[i, 3] <- n
-#                record.phase2[i, 4] <- rho
-#                record.phase2[i, 5] <- get.L(m, m * (n - 1), alpha, Phase1 = FALSE, alternative = '2-sided')
-#            
-#            }
-#        }
-#    }
-#}
-#
-#
-#####################################################################################################################################################
-#    #get alpha by multivariate normal(the conditioning-unconditioning method)
-#####################################################################################################################################################
-#get.alpha.cond.uncond <- function(
-#                                C, 
-#                                m, 
-#                                nu, 
-#                                Phase1 = TRUE, 
-#                                off.diag = ifelse(Phase1 == TRUE, - 1 /(m - 1), 0), 
-#                                alternative = '2-sided',
-#                                max.sim = 10000, 
-#                                cores = 3
-#){                                                                                      #Based on the conditioning-unconditioning method
-#                                                                                        #
-#    require(parallel)
-#
-#    Y <- rchisq(max.sim, df = nu)                                                       #Generate random values from Chi Square
-#    
-#    sqrt.Y <- sqrt(Y)                                                                   #get random values chi with nu degrees of freedom
-#                                                                                        
-#    c4 <- c4.f(nu)                                                                      #define c4
-#         
-#    corr.P <- corr.f(m, off.diag = off.diag)                                            #define correlation matrix
-#    
-#    if (Phase1 == TRUE){                                                                #define the upper bounds for integration
-#                                                                                        #
-#        l <- C / c4 * sqrt(m / (m - 1)) / sqrt(nu) * sqrt.Y                             #
-#                                                                                        #
-#    } else {                                                                            #
-#                                                                                        #
-#        l <- C / c4 * sqrt(m / (m + 1)) / sqrt(nu) * sqrt.Y                             #
-#                                                                                        #
-#    }                                                                                   #
-#                                                          
-#    cl <- makeCluster(cores)
-#
-#    clusterExport(cl, c('l', 'm', 'alternative', 'corr.P'), envir = environment())
-#    clusterEvalQ(cl, library(mvtnorm))     
-#    
-#    p <- clusterApply(
-#            cl,
-#            1:max.sim, 
-#            function(x){
-#            
-#                pp = ifelse(                                                                    #get the integration of multivariate normal
-#                        alternative == '2-sided',                                               #
-#                        pmvnorm(lower = -rep(l[x], m), upper = rep(l[x], m), corr = corr.P),    #
-#                        pmvnorm(lower = -Inf, upper = rep(l[x], m), corr = corr.P)              #
-#                )                                                                               #
-#                
-#                1 - pp
-#            }
-#    
-#    )
-#    
-#    stopCluster(cl)
-#    
-#    mean(unlist(p))
-#                                                                                       
-#}     
-#
-##debug(get.alpha.cond.uncond)
-#get.alpha.cond.uncond(
-#                3, 
-#                30, 
-#                29, 
-#                Phase1 = FALSE, 
-#                off.diag = 0, 
-#                alternative = '1-sided',
-#                max.sim = 10000, 
-#                cores = 3
-#)
-#
-#    
-#####################################################################################################################################################
-#
