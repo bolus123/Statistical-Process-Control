@@ -384,10 +384,11 @@ bisec.RLsim <- function(
                     subgroup.amt = 1000, 
                     maxsim = 10000,
                     L.lower.init = 1, 
-                    L.upper.init = 5, 
+                    L.upper.init = 5,
                     maxiter = 1000, 
                     tol = 1e-6,
-                    cores = 1
+                    cores = 1,
+                    double.check = TRUE
 ){
                                                                                 #The purpose of this function is to search
     Given.ARL <- ARL                                                            #L by bisection method
@@ -409,7 +410,36 @@ bisec.RLsim <- function(
         
         cat('iteration:', iter, ', ARL:', Sim.ARL,  '\n')
         
-        if (abs(Given.ARL - Sim.ARL) < tol) break
+        if (abs(Given.ARL - Sim.ARL) < tol) {
+        
+            if (double.check == TRUE) {
+            
+                check.RLD <- RL.stat.sim(m, n, Chart, xtype, ytype, L.mid, shift, scale, subgroup.amt, maxsim, cores)
+                check.ARL <- check.RLD$ARL
+                
+                cat('iteration:', iter, ', Check ARL:', check.ARL,  '\n')
+                
+                if (abs(Given.ARL - check.ARL) < tol ) {
+                
+                    break
+                    
+                } else {
+                
+                    L.lower <- L.lower.init
+                    L.upper <- L.upper.init
+                    
+                    next
+                    
+                
+                }
+                
+            } else {
+            
+                break
+            
+            }
+            
+        }
         
         if (Given.ARL - Sim.ARL > 0){
         
@@ -422,6 +452,8 @@ bisec.RLsim <- function(
         }
     
     }
+    
+    #if 
 
     list(L = L.mid, RL = Sim.RLD)
 
