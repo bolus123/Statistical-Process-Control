@@ -417,7 +417,7 @@ bisec.RLsim <- function(
                 check.RLD <- RL.stat.sim(m, n, Chart, xtype, ytype, L.mid, shift, scale, subgroup.amt, maxsim, cores)
                 check.ARL <- check.RLD$ARL
                 
-                cat('iteration:', iter, ', Check ARL:', check.ARL,  '\n')
+                cat('Double Check ARL:', check.ARL,  '\n')
                 
                 if (abs(Given.ARL - check.ARL) < tol ) {
                 
