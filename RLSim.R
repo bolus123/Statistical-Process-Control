@@ -109,7 +109,8 @@ WM.f <- function(x, y){
 
 WM.stat <- function(m, n){
 
-    mu <- n * (m + n + 1) / 2 - m * (m + 1) / 2
+    #mu <- n * (m + n + 1) / 2 - m * (m + 1) / 2
+    mu <- n * m / 2
     V <- m * n * (m + n + 1) / 12
 
     list(mu = mu, V = V)
