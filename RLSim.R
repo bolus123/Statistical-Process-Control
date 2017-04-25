@@ -83,9 +83,9 @@ SPC.Chart <- function(CS, mu, L, V, graph = TRUE){
 
 
 ####################################################################################################################################################
-    #Get WM statistics
+    #Get MW statistics
 ####################################################################################################################################################
-WM.f <- function(x, y){
+MW.f <- function(x, y){
                                                                             #The purpose of this function is
     if (is.vector(y)) y <- t(as.matrix(y))                                  #to get MW statistics
                                                                             
@@ -99,7 +99,7 @@ WM.f <- function(x, y){
     T <- lapply(                                                            
             1:t,                                                            
             function(x) {
-                wilcox.test(X, Y[x, ], alternative = 'greater')$statistic   #Obtain WM by willcox.test
+                wilcox.test(X, Y[x, ], alternative = 'greater')$statistic   #Obtain MW by willcox.test
             }
     )
     
@@ -107,7 +107,7 @@ WM.f <- function(x, y){
 
 }
 
-WM.stat <- function(m, n){
+MW.stat <- function(m, n){
 
     #mu <- n * (m + n + 1) / 2 - m * (m + 1) / 2
     mu <- n * m / 2
@@ -235,7 +235,7 @@ check.RL <- function(CS, LCL = NULL, UCL = NULL){
 get.RL <- function(
                 m
                 , n = NULL
-                , Chart = 'WM'
+                , Chart = 'MW'
                 , xtype = 'norm'
                 , ytype = 'norm'
                 , L = 3
@@ -257,22 +257,22 @@ get.RL <- function(
                                                            
             y <- get.data(n, subgroup.amt = subgroup.amt, type = ytype, shift = shift, scale = scale)                 #generate y
         
-            if (Chart == 'WM') {                                                                       #do WM chart
+            if (Chart == 'MW') {                                                                       #do MW chart
                                                                                                        #
-                CS <- WM.f(x, y)                                                                       #get charting staitsitcs
-                stat <- WM.stat(m, n)                                                                  #get mean and variance
+                CS <- MW.f(x, y)                                                                       #get charting staitsitcs
+                stat <- MW.stat(m, n)                                                                  #get mean and variance
                 Ch <- SPC.Chart(CS, stat$mu, L, sqrt(stat$V), graph = FALSE)                           #get LCL and UCL
             
             } else if (Chart == 'T'){                                                                  #do T chart
                                                                                                        #
-                CS <- rowMeans(y)                                                                      #get charting staitsitcs
+                CS <- roMWeans(y)                                                                      #get charting staitsitcs
                 mu <- mean(x)                                                                          #get mean
                 V <- var(as.vector(x))                                                                            #get variance
                 
                 Ch <- SPC.Chart(CS, mu, L, sqrt(V), graph = FALSE)                                     #get LCL and UCL
             
             
-            } else if (Chart == 'FP'){                                                                 #do WM chart with FP replacement
+            } else if (Chart == 'FP'){                                                                 #do MW chart with FP replacement
                              
                 CS <- lapply(
                         1:subgroup.amt,
@@ -310,7 +310,7 @@ get.RL <- function(
 
 RL.stat.sim <- function(
                 m, n = NULL, 
-                Chart = 'WM', 
+                Chart = 'MW', 
                 xtype = 'norm', 
                 ytype = 'norm', 
                 L = 3, 
@@ -377,7 +377,7 @@ bisec.RLsim <- function(
                     ARL, 
                     m, 
                     n = NULL, 
-                    Chart = 'WM', 
+                    Chart = 'MW', 
                     xtype = 'norm', 
                     ytype = 'norm', 
                     shift = 0, 
@@ -469,7 +469,7 @@ bisec.RLsim <- function(
 #        ARL = 370, 
 #        m = 100, 
 #        n = 5, 
-#        Chart = 'WM', 
+#        Chart = 'MW', 
 #        xtype = 'norm', 
 #        ytype = 'norm', 
 #        shift = 0, 
