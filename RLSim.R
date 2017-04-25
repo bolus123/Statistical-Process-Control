@@ -265,7 +265,7 @@ get.RL <- function(
             
             } else if (Chart == 'T'){                                                                  #do T chart
                                                                                                        #
-                CS <- roMWeans(y)                                                                      #get charting staitsitcs
+                CS <- rowMeans(y)                                                                      #get charting staitsitcs
                 mu <- mean(x)                                                                          #get mean
                 V <- var(as.vector(x))                                                                            #get variance
                 
