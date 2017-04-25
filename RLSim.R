@@ -323,8 +323,7 @@ RL.stat.sim <- function(
    
     require(parallel)
                                                                                                         #The purpose of this function is
-    #RES <- rep(NA, maxsim)                                                                             #to get RL distribution by simulations
-     
+
     cl <- makeCluster(cores)
     
     clusterExport(
@@ -337,9 +336,9 @@ RL.stat.sim <- function(
             cl,
             ls(envir = .GlobalEnv)[sapply(ls(envir = .GlobalEnv), function(x) is.function(get(x)))]
     )
-
     
-
+    
+    
     RES <- parLapply(
                 cl,
                 1:maxsim,
@@ -348,16 +347,24 @@ RL.stat.sim <- function(
     
     )
     
+                                                                                             #
+    RES <- unlist(RES)
+    
+     
+    stopCluster(cl)
+    
+    #RES <- rep(NA, maxsim)                                                                             #to get RL distribution by simulations
+    #
+    #
     #for (sim in 1:maxsim) {                                                                             #
     #                                                                                                    #
     #    RES[sim] <- get.RL(m, n, Chart, xtype, ytype, L, shift, subgroup.amt)                           #repeatly get RL until sim > maxsim
     #                                                                                                    #
     #}                                                                                                   #
-                                                                                                        #
-    RES <- unlist(RES)
-
-     
-    stopCluster(cl)
+           
+    
+    
+    
          #
     list(
         RL = RES, 
