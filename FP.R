@@ -2,8 +2,7 @@
     #This code need package parallel for speeding up the process of obtaining pmf of U.modified by simulations
 ####################################################################################################################################################
 
-
-
+source('https://raw.githubusercontent.com/bolus123/Statistical-Process-Control/master/MKLswitch.R')
 
 ####################################################################################################################################################
 
