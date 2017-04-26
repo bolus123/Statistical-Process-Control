@@ -4,14 +4,8 @@
 library(mvtnorm)
 ####################################################################################################################################################
 
+source('https://raw.githubusercontent.com/bolus123/Statistical-Process-Control/master/MKLswitch.R')
 
-if (sum(c("RevoUtils", "RevoUtilsMath") %in% rownames(installed.packages())) == 2){ #Maximize the computation performance
-                                                                                    #based on intel MKL library
-    require(RevoUtils)                                                              #In this case, you may need packages, RevoUtils and RevoUtilsMath
-    require(RevoUtilsMath)                                                          #but they are just optional libraries
-    setMKLthreads(getMKLthreads())
-
-}
 ####################################################################################################################################################
     #parts of MCMC
 ####################################################################################################################################################
