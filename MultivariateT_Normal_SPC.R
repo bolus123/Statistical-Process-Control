@@ -2,6 +2,7 @@
     #Based on Champ and Jones(2004), Rose and Does(1995)
 ####################################################################################################################################################
 library(mvtnorm)
+library(adehabitatLT)
 ####################################################################################################################################################
 
 source('https://raw.githubusercontent.com/bolus123/Statistical-Process-Control/master/MKLswitch.R')
@@ -321,17 +322,47 @@ get.L.mvt <- function(
     #get L by multivariate Normal
 ####################################################################################################################################################
 
-root.mvn.F <- function(K, m, nu, Y, sigma, pu, alternative = '2-sided') {
-                                                            #The purpose of this function is
-    s <- length(Y)                                          #to obtain appropriate K
-                                                            #by multivariate normal
-    L <- K / sqrt((m - 1) / m * nu) * Y * c4.f(nu)          #
+#root.mvn.F <- function(K, m, nu, Y, sigma, pu, alternative = '2-sided') {
+#                                                            #The purpose of this function is
+#    s <- length(Y)                                          #to obtain appropriate K
+#                                                            #by multivariate normal
+#    L <- K / sqrt((m - 1) / m * nu) * Y * c4.f(nu)          #
+#
+#    pp <- lapply(
+#            1:s,
+#            function(i){
+#            
+#                LL <- rep(L[i], m)
+#                ifelse(
+#                    alternative == '2-sided',
+#                    pmvnorm(lower = -LL, upper = LL, sigma = sigma),
+#                    pmvnorm(lower = rep(-Inf, m), upper = LL, sigma = sigma)
+#                )
+#            
+#            } 
+#    
+#    )
+#    
+#    pp <- mean(unlist(pp))
+#    
+#    pu - pp
+#
+#
+#}
 
-    pp <- lapply(
+
+joint.pdf.mvn.chisq <- function(Y, K, m, nu, sigma, alternative = '2-sided') {
+
+    s <- length(Y)
+
+    L <- K / sqrt((m - 1) / m * nu) * Y * c4.f(nu)
+    
+    dpp <- lapply(
             1:s,
             function(i){
-            
+
                 LL <- rep(L[i], m)
+                
                 ifelse(
                     alternative == '2-sided',
                     pmvnorm(lower = -LL, upper = LL, sigma = sigma),
@@ -340,15 +371,50 @@ root.mvn.F <- function(K, m, nu, Y, sigma, pu, alternative = '2-sided') {
             
             } 
     
-    )
+    )    
+
+    dpp <- unlist(dpp)
     
-    pp <- mean(unlist(pp))
+    dpp * dchi(Y, df = nu)
+
+
+}
+
+
+
+root.mvn.F <- function(K, m, nu, sigma, pu, alternative = '2-sided') {
+                                                            #The purpose of this function is
+    #s <- length(Y)                                          #to obtain appropriate L
+    #                                                        #by multivariate normal
+    #L <- K / sqrt((m - 1) / m * nu) * Y * c4.f(nu)          #
+    #
+    #pp <- lapply(
+    #        1:s,
+    #        function(i){
+    #        
+    #            LL <- rep(L[i], m)
+    #            ifelse(
+    #                alternative == '2-sided',
+    #                pmvnorm(lower = -LL, upper = LL, sigma = sigma),
+    #                pmvnorm(lower = rep(-Inf, m), upper = LL, sigma = sigma)
+    #            )
+    #        
+    #        } 
+    #
+    #)
+    #
+    #pp <- mean(unlist(pp))
+    
+    pp <- integrate(joint.pdf.mvn.chisq, lower = 0, upper = Inf, K = K, m = m, nu = nu, sigma = sigma, alternative = alternative)$value
     
     pu - pp
 
 
 }
 
+#sigma = corr.f(20)
+#joint.pdf.mvn.chisq(1, 3, 20, 80, sigma, alternative = '2-sided')
+#root.mvn.F(3, 20, 80, sigma, 0.7)
 
 get.L.mvn <- function(
                  m
@@ -358,7 +424,7 @@ get.L.mvn <- function(
                  ,Phase1 = TRUE
                  ,off.diag = NULL
                  ,alternative = '2-sided'
-                 ,maxsim = 10000
+                 #,maxsim = 10000
                  ,maxiter = 10000
                  #,MCMC = FALSE
                  #,MCMC.search.interval = c(1, 5)
@@ -369,13 +435,14 @@ get.L.mvn <- function(
                                                             #to obtain L and K based on
     MCMC <- FALSE                                           #multivariate normal.
                                                             #MCMC part is not available now.
-    #if (is.null(off.diag)) off.diag <- ifelse(Phase1 == TRUE, - 1 /(m - 1), 1 / (m + 1))
+    if (is.null(off.diag)) off.diag <- ifelse(Phase1 == TRUE, - 1 /(m - 1), 1 / (m + 1))
+    
     
     corr.P <- corr.f(m = m, off.diag = off.diag)  
 
     pu <- 1 - FAP
     
-    Y <- sqrt(rchisq(maxsim, df = nu))
+    #Y <- sqrt(rchisq(maxsim, df = nu))
     
     if (MCMC == TRUE) {
     
@@ -403,10 +470,11 @@ get.L.mvn <- function(
                 interval = c(1, 7),
                 m = m,
                 nu = nu,
-                Y = Y,
+                #Y = Y,
                 sigma = corr.P,
                 pu = pu,
-                alternative = alternative
+                alternative = alternative,
+                maxiter = maxiter
         )$root
 
     }
@@ -421,6 +489,8 @@ get.L.mvn <- function(
 
 }
 
+#get.L.mvn(20, 80)
+
 ####################################################################################################################################################
 
 get.L <- function(
@@ -428,12 +498,12 @@ get.L <- function(
             ,nu
             ,FAP = 0.1
             #,ARL = 370
-            ,Phase1 = TRUE
+            #,Phase1 = TRUE
             ,off.diag = NULL
             ,alternative = '2-sided'
             ,maxiter = 10000
             ,method = 'direct'
-            ,indirect.maxsim = 10000
+            #,indirect.maxsim = 10000
             #,MCMC = FALSE
             #,MCMC.search.interval = c(1, 5)
             #,MCMC.maxsim = 10000
@@ -443,6 +513,9 @@ get.L <- function(
                                                     #by multivariate T or multivariate normal.
                                                     #Multivariate normal is so time-consuming
                                                     #that I do not recommend.
+    Phase1 <- TRUE
+    
+    
     if (is.null(off.diag)) off.diag <- ifelse(Phase1 == TRUE, - 1 /(m - 1), 1 / (m + 1))
 
 
@@ -467,7 +540,7 @@ get.L <- function(
             ,Phase1 = Phase1
             ,off.diag = off.diag
             ,alternative = alternative
-            ,maxsim = indirect.maxsim
+            #,maxsim = indirect.maxsim
             ,maxiter = maxiter
         )
     
@@ -475,6 +548,28 @@ get.L <- function(
 
 
 }
+
+
+get.L(
+            20
+            ,80
+            ,FAP = 0.1
+            ,Phase1 = TRUE
+            ,off.diag = NULL
+            ,alternative = '2-sided'
+            ,maxiter = 10000
+            ,method = 'direct'
+)
+get.L(
+            20
+            ,80
+            ,FAP = 0.1
+            ,Phase1 = TRUE
+            ,off.diag = NULL
+            ,alternative = '2-sided'
+            ,maxiter = 10000
+            ,method = 'indirect'
+)
 
 ####################################################################################################################################################
     #Example
