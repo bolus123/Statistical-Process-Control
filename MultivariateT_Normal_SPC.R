@@ -550,51 +550,26 @@ get.L <- function(
 }
 
 
-get.L(
-            20
-            ,80
-            ,FAP = 0.1
-            ,Phase1 = TRUE
-            ,off.diag = NULL
-            ,alternative = '2-sided'
-            ,maxiter = 10000
-            ,method = 'direct'
-)
-get.L(
-            20
-            ,80
-            ,FAP = 0.1
-            ,Phase1 = TRUE
-            ,off.diag = NULL
-            ,alternative = '2-sided'
-            ,maxiter = 10000
-            ,method = 'indirect'
-)
+
 
 ####################################################################################################################################################
     #Example
 ####################################################################################################################################################
-#a <- get.L(
-#            m = 15
-#            ,nu = 30
+#get.L(
+#            20
+#            ,80
 #            ,FAP = 0.1
-#            ,Phase1 = TRUE
+#            ,off.diag = NULL
 #            ,alternative = '2-sided'
 #            ,maxiter = 10000
 #            ,method = 'direct'
-#
-#
-#)   
-#
-#
-#b <- get.L(
-#            m = 15
-#            ,nu = 30
+#)
+#get.L(
+#            20
+#            ,80
 #            ,FAP = 0.1
-#            ,Phase1 = TRUE
+#            ,off.diag = NULL
 #            ,alternative = '2-sided'
 #            ,maxiter = 10000
 #            ,method = 'indirect'
-#            ,indirect.maxsim = 10000
-#
 #)
