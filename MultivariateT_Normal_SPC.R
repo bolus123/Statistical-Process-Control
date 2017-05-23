@@ -382,7 +382,7 @@ joint.pdf.mvn.chisq <- function(Y, K, m, nu, sigma, alternative = '2-sided') {
 
 
 
-root.mvn.F <- function(K, m, nu, sigma, pu, alternative = '2-sided') {
+root.mvn.F <- function(K, m, nu, sigma, pu, alternative = '2-sided', subdivisions = 2000, rel.tol = 1e-2) {
                                                             #The purpose of this function is
     #s <- length(Y)                                          #to obtain appropriate L
     #                                                        #by multivariate normal
@@ -405,7 +405,18 @@ root.mvn.F <- function(K, m, nu, sigma, pu, alternative = '2-sided') {
     #
     #pp <- mean(unlist(pp))
     
-    pp <- integrate(joint.pdf.mvn.chisq, lower = 0, upper = Inf, K = K, m = m, nu = nu, sigma = sigma, alternative = alternative)$value
+    pp <- integrate(
+            joint.pdf.mvn.chisq, 
+            lower = 0, 
+            upper = Inf, 
+            K = K, 
+            m = m, 
+            nu = nu, 
+            sigma = sigma, 
+            alternative = alternative, 
+            subdivisions = subdivisions, 
+            rel.tol = rel.tol
+        )$value
     
     pu - pp
 
@@ -426,6 +437,8 @@ get.L.mvn <- function(
                  ,alternative = '2-sided'
                  #,maxsim = 10000
                  ,maxiter = 10000
+                 ,subdivisions = 2000
+                 ,tol = 1e-2   
                  #,MCMC = FALSE
                  #,MCMC.search.interval = c(1, 5)
                  #,MCMC.maxsim = 10000
@@ -474,6 +487,9 @@ get.L.mvn <- function(
                 sigma = corr.P,
                 pu = pu,
                 alternative = alternative,
+                subdivisions = 2000,
+                tol = tol,
+                rel.tol = tol,
                 maxiter = maxiter
         )$root
 
@@ -503,6 +519,8 @@ get.L <- function(
             ,alternative = '2-sided'
             ,maxiter = 10000
             ,method = 'direct'
+            ,indirect_subdivisions = 100L
+            ,indirect_tol = .Machine$double.eps^0.25
             #,indirect.maxsim = 10000
             #,MCMC = FALSE
             #,MCMC.search.interval = c(1, 5)
@@ -541,7 +559,9 @@ get.L <- function(
             ,off.diag = off.diag
             ,alternative = alternative
             #,maxsim = indirect.maxsim
+            ,subdivisions = indirect_subdivisions
             ,maxiter = maxiter
+            ,tol = indirect_tol
         )
     
     }
