@@ -355,7 +355,8 @@ joint.pdf.mvn.chisq <- function(Y, K, m, nu, sigma, alternative = '2-sided') {
 
     s <- length(Y)
 
-    L <- K / sqrt((m - 1) / m * nu) * Y * c4.f(nu)
+    #L <- K / sqrt((m - 1) / m * nu) * Y * c4.f(nu)
+    L <- K / sqrt((m - 1) / m * nu) * Y / c4.f(nu)
     
     dpp <- lapply(
             1:s,
