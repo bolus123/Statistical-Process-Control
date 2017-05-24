@@ -553,6 +553,7 @@ get.L <- function(
     
     } else {                                       #using multivariate normal to obtain L and K
     
+        if (is.int == 0) cat('Nu is not an integer. The indirect method will be conducted.', '\n')
     
         get.L.mvn(
             m = m
