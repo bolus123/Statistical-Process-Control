@@ -537,8 +537,9 @@ get.L <- function(
     
     if (is.null(off.diag)) off.diag <- ifelse(Phase1 == TRUE, - 1 /(m - 1), 1 / (m + 1))
 
+    is.int <- ifelse(nu == round(nu), 1, 0)
 
-    if (method == 'direct') {                       #using multivariate T to obtain L and K
+    if (method == 'direct' & is.int == 1) {                       #using multivariate T to obtain L and K
     
         get.L.mvt(
             m = m
@@ -551,6 +552,7 @@ get.L <- function(
         )
     
     } else {                                       #using multivariate normal to obtain L and K
+    
     
         get.L.mvn(
             m = m
