@@ -1,34 +1,31 @@
-pc.f <- function(z, k, m, n, alternative = '2-sided'){
-
-    nu.num <- (1 + z * m * (n - 1) / n / (m - 1)) ^ 2
-    nu.den <- 1 / (m - 1) + z ^ 2 * m ^ 2 * (n - 1) / n ^ 2 / (n - 1) ^ 2
+pc.f <- function(z, k, m, n, eta = 1, alternative = '2-sided'){
+    
+    nu.num <- (1 + z * eta * m / n) ^ 2
+    nu.den <- 1 / (m - 1) + (z * eta) ^ 2 * m ^ 2 / n ^ 2 / (n - 1)
     
     nu <- nu.num / nu.den
     
-    t <- sqrt(m) * k / sqrt(1 + z * m * (n - 1) / n / (m - 1))
+    t <- k / sqrt(1 + z * eta * m / n)
     
     pt(t, nu) - pt(-t, nu)
 
 
 }
 
-ARL.f <- function(k, m, n, alternative = '2-sided'){
+ARL.f <- function(k, m, n, eta = 1, alternative = '2-sided'){
 
-    ARLc.f <- function(z, k, m, n, alternative = '2-sided') 1 / (1 - pc.f(z, k, m, n, alternative = '2-sided')) * df(z, n - 1, m - 1)
+    ARLc.f <- function(z, k, m, n, eta = 1, alternative = '2-sided') 1 / (1 - pc.f(z, k, m, n, eta = eta, alternative = '2-sided')) * df(z, n - 1, m - 1)
 
-    integrate(ARLc.f, lower = 0, upper = Inf, k = k, m = m, n = n, alternative = '2-sided')$value
+    integrate(ARLc.f, lower = 0, upper = Inf, k = k, m = m, n = n, eta = eta, alternative = '2-sided')$value
 
 
 }
 
 
-ARL0.f <- function(k, m, n, alternative = '2-sided', ARL = 500){
+ARL0.f <- function(k, m, n, eta = 1, alternative = '2-sided', ARL = 500){
 
-    ARL.f(k, m, n, alternative = '2-sided') - ARL
+    ARL.f(k, m, n, eta = eta, alternative = '2-sided') - ARL
 
 }
 
-uniroot(ARL0.f, interval = c(0.0001, 0.8), m = 100, n = 20, ARL = 500)$root
-
-
-ARL.f(0.8, 100, , alternative = '2-sided')
+uniroot(ARL0.f, interval = c(0.0001, 7), m = 100, n = 20, ARL = 500)$root
