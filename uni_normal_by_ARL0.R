@@ -58,7 +58,7 @@ ARL_norm <- function(
     
         L <- sqrt((m + 1) / m) * k - delta
         p <- pt(L, df = nu)
-        ARL <- 1 / (1 - p)
+        ARL <- ifelse(alternative == '2-sided', 1 / ((1 - p) * 2), 1 / (1 - p))
     
     }
 
