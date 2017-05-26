@@ -12,20 +12,20 @@ pc.f <- function(z, k, m, n, eta = 1, alternative = '2-sided'){
 
 }
 
-ARL.f <- function(k, m, n, eta = 1, alternative = '2-sided'){
+ARL.f <- function(k, m, n, eta = 1, alternative = '2-sided', subdivisions = 100){
 
-    ARLc.f <- function(z, k, m, n, eta = 1, alternative = '2-sided') 1 / (1 - pc.f(z, k, m, n, eta = eta, alternative = '2-sided')) * df(z, n - 1, m - 1)
+    ARLc.f <- function(z, k, m, n, eta = 1, alternative = alternative) 1 / (1 - pc.f(z, k, m, n, eta = eta, alternative = alternative)) * df(z, n - 1, m - 1)
 
-    integrate(ARLc.f, lower = 0, upper = Inf, k = k, m = m, n = n, eta = eta, alternative = '2-sided')$value
+    integrate(ARLc.f, lower = 0, upper = Inf, k = k, m = m, n = n, eta = eta, alternative = alternative, subdivisions = subdivisions)$value
 
 
 }
 
 
-ARL0.f <- function(k, m, n, eta = 1, alternative = '2-sided', ARL = 500){
+ARL0.f <- function(k, m, n, eta = 1, subdivisions = 100, alternative = '2-sided', ARL = 500){
 
-    ARL.f(k, m, n, eta = eta, alternative = '2-sided') - ARL
+    ARL.f(k, m, n, eta = eta, alternative = alternative, subdivisions = subdivisions) - ARL
 
 }
 
-uniroot(ARL0.f, interval = c(0.0001, 7), m = 100, n = 20, ARL = 500)$root
+uniroot(ARL0.f, interval = c(0.0001, 9), m = 100, n = 20, ARL = 500, eta = 1)$root
