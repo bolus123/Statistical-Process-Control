@@ -573,7 +573,59 @@ get.L <- function(
 
 }
 
+####################################################################################################################################################
+    #reverse the process
+####################################################################################################################################################
+get.FAP0 <- function(
+            k
+            ,m
+            ,nu
+            #,ARL = 370
+            #,Phase1 = TRUE
+            ,off.diag = NULL
+            ,alternative = '2-sided'
+            ,maxiter = 10000
+            ,method = 'direct'
+            ,indirect_subdivisions = 100L
+            ,indirect_tol = .Machine$double.eps^0.25
+            #,indirect.maxsim = 10000
+            #,MCMC = FALSE
+            #,MCMC.search.interval = c(1, 5)
+            #,MCMC.maxsim = 10000
+            #,MCMC.burn = 1000
+){
 
+    Phase1 = TRUE
+    
+    is.int <- ifelse(nu == round(nu), 1, 0)
+    
+    if (is.null(off.diag)) off.diag <- ifelse(Phase1 == TRUE, - 1 /(m - 1), 1 / (m + 1))
+    
+    corr.P <- corr.f(m = m, off.diag = off.diag)
+    
+    L <- K / c4.f(nu) * sqrt(m / (m - 1))
+    
+
+    if (method == 'direct' & is.int == 1) {                       #using multivariate T to obtain L and K
+    
+        ll <- rep(L, m)
+        
+        ifelse(
+            alternative == '2-sided',
+            1 - pmvt(lower = -ll, upper = ll, df = nu, corr = corr.P, algorithm = TVPACK, abseps = 1e-12),
+            1 - pmvt(lower = -Inf, upper = ll, df = nu, corr = corr.P, algorithm = TVPACK, abseps = 1e-12)
+        )
+    
+    } else{
+    
+    
+    
+    }
+
+
+
+
+}
 
 
 ####################################################################################################################################################
