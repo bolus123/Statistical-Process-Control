@@ -463,7 +463,7 @@ bisec.RLsim <- function(
         
         }
         
-        if (abs(L.mid - L.lower.init) < tol | abs(L.mid - L.upper.init) < tol) {
+        if (abs(L.mid - L.lower.init) < tol | abs(L.mid - L.upper.init) < tol | iter == maxiter) {
             
             cat('cannot converge', '\n')
             L.mid <- NA
