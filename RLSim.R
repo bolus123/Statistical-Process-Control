@@ -397,6 +397,7 @@ bisec.RLsim <- function(
                     L.upper.init = 5,
                     maxiter = 1000, 
                     tol = 1e-6,
+                    L.tol = 1e-6,
                     cores = 1,
                     double.check = TRUE
 ){
@@ -463,7 +464,7 @@ bisec.RLsim <- function(
         
         }
         
-        if (abs(L.mid - L.lower.init) < tol | abs(L.mid - L.upper.init) < tol | iter == maxiter) {
+        if (abs(L.mid - L.lower.init) < L.tol | abs(L.mid - L.upper.init) < L.tol | iter == maxiter) {
             
             cat('cannot converge', '\n')
             L.mid <- NA
