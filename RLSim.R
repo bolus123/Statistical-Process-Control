@@ -406,6 +406,8 @@ bisec.RLsim <- function(
     L.lower <- L.lower.init
     L.upper <- L.upper.init
     
+    cat('starting process for the type of chart: ', Chart, 'at the setting of m = ', m, ', n = ', n, 'and ARL = ', ARL, '\n')
+    
     for (iter in 1:maxiter){
     
         ##cat('iteration:', iter, '\n')
@@ -459,6 +461,15 @@ bisec.RLsim <- function(
         
             L.upper <- L.mid
         
+        }
+        
+        if (abs(L.mid - L.lower.init) < tol | abs(L.mid - L.upper.init) < tol) {
+            
+            cat('cannot converge', '\n')
+            L.mid <- NA
+            Sim.RLD <- NA
+            break
+            
         }
     
     }
