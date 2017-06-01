@@ -354,11 +354,11 @@ get.FAP0 <- function(
             1 - pmvt(lower = -Inf, upper = ll, df = nu, corr = corr.P, algorithm = TVPACK, abseps = 1e-12)
         )
     
-    } else{
-    
-    
-    
-    }
+    } #else{
+      #
+      #
+    #
+    #}
 
 
 
