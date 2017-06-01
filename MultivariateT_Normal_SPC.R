@@ -8,241 +8,6 @@ library(adehabitatLT)
 source('https://raw.githubusercontent.com/bolus123/Statistical-Process-Control/master/MKLswitch.R')
 
 ####################################################################################################################################################
-    #parts of MCMC
-####################################################################################################################################################
-P.empirical <- function(samp, ll, sample.amt, tails = '2-sided') {
-                                                              #The purpose of this function is
-    n <- dim(samp)[2]                                         #to obtain empirical probability
-
-    upper <- ll
-    
-    if (tails == '2-sided'){
-    
-        lower <- -ll
-    
-    } else {
-       
-        lower <- rep(-Inf, n)
-    
-    }
-
-    P.ind.matrix <- matrix(NA, nrow = sample.amt, ncol = n)
-    P.ind <- lapply(1:n, function(i) samp[, i] < upper[i] & samp[, i] > lower[i])
-    
-    for (i in 1:n) {
-    
-        P.ind.matrix[, i] <- P.ind[[i]]
-    
-    }
-    
-    sum(rowSums(P.ind.matrix) == n) / sample.amt
-
-}
-
-root.P.empirical <- function(p, L, samp, nlength, sample.amt, tails = '2-sided'){
-                                                             #The purpose of this function is
-    ll <- rep(L, nlength)                                    #to obtain appropriate L.
-    
-    p - P.empirical(samp, ll, sample.amt, tails)             #L is the root of this function
-
-}
-
-
-####################################################################################################################################################
-    #Multivariate T based on MCMC
-####################################################################################################################################################
-
-t.f <- function(x, mu, sigma, nu){
-                                                                              #The purpose of this function
-    gamma((nu + 1) / 2) / gamma(nu / 2) / sqrt(nu * pi) / sqrt(sigma) *       #is to calculate pdf of t distribution
-    (1 + nu ^ (-1) * (x - mu) ^ 2 / sigma) ^ (-(nu + 1) / 2)                  #based on Peng Li(2016)
-
-}
-
-t.F <- function(x, mu, sigma, nu) {                                            #The purpose of this function is 
-                                                                               #to calculate cdf of t distribution
-    integrate(t.f, lower = -Inf, upper = x, mu = mu, sigma = sigma, nu = nu)   #
-                                                                               #
-}
-
-root.t.F <- function(p, x, mu, sigma, nu) {                                    #The purpose of this function is
-                                                                               #obtain appropriate quantile 
-    p - t.F(x, mu, sigma, nu)$value                                            #of t distribution
-                                                                               #
-}
-    
-MVT.Gibbs.Sampling <- function(sample.amt, nu, Sigma, x.init = 0, burn = 1000){
-
-    n <- dim(Sigma)[1]
-
-    x <- matrix(x.init, nrow = sample.amt + burn + 1, ncol = n)
-
-    Sigma11 <- Sigma[1, 1]
-    Sigma12 <- t(as.matrix(Sigma[1, -1]))
-    Sigma21 <- as.matrix(Sigma[-1, 1])
-    Sigma22 <- Sigma[-1, -1]
-
-    Sigma.x <- Sigma11 - Sigma12 %*% solve(Sigma22) %*% Sigma21
-
-    for (iter in 2:(sample.amt + burn + 1)) {
-        
-        for (i in 1:n) {
-               
-            if (i + 1 > n) {
-            
-                x.star <- c(x[iter, 0:(i - 1)])
-            
-            } else {
-            
-                x.star <- c(x[iter - 1, (i + 1):n], x[iter, 0:(i - 1)])
-                
-            }
-
-            mu.x <- Sigma12 %*% solve(Sigma22) %*% x.star
-
-            u.p <- runif(1, 0, 1)
-
-            x.t <- qt(u.p, nu, mu.x)
-            
-            p.t.1 <- root.t.F(u.p, x.t, mu.x, Sigma.x, nu)
-            
-            for (j in 1:1000){
-
-                x.t.alt <- x.t + 0.1 * j * (-1) ^ j
-            
-                p.t.2 <- root.t.F(u.p, x.t.alt, mu.x, Sigma.x, nu)
-                
-                if (p.t.1 * p.t.2 < 0) break 
-                
-            }
-            
-            x[iter, i] <- uniroot(
-                            root.t.F, 
-                            interval = c(x.t, x.t.alt), 
-                            p = u.p, 
-                            mu = mu.x, 
-                            sigma = Sigma.x, 
-                            nu = nu
-                        )$root
-        
-        }
-
-    }
-    
-    x[-c(1:(burn + 1)), ]
-
-}
-
-
-
-
-MVT.F.Gibbs.Sampling <- function(ll, sample.amt, nu, Sigma, tails = '2-sided', x.init = 0, burn = 1000){
-
-    n <- dim(Sigma)[1]
-    
-    samp <- MVT.Gibbs.Sampling(sample.amt, nu, Sigma, x.init = x.init, burn = burn)
-
-    P.empirical(samp, ll, sample.amt, tails)
-    
-
-}
-
-
-
-MVT.Q.Gibbs.Sampling <- function(p, sample.amt, nu, Sigma, tails = '2-sided', x.init = 0, burn = 1000, search.interval = c(1, 5)){
-
-    n <- dim(Sigma)[1]
-    
-    samp <- MVT.Gibbs.Sampling(sample.amt, nu, Sigma, x.init = x.init, burn = burn)
-    
-    uniroot(
-        root.P.empirical, 
-        interval = search.interval, 
-        samp = samp, 
-        p = p, 
-        nlength = n, 
-        sample.amt = sample.amt, 
-        tails = tails
-    )$root
-
-}
-
-
-####################################################################################################################################################
-    #Multivariate Normal based on MCMC
-####################################################################################################################################################
-
-
-MVN.Gibbs.Sampling <- function(sample.amt, Sigma, x.init = 0, burn = 1000){
-
-    n <- dim(Sigma)[1]
-
-    x <- matrix(x.init, nrow = sample.amt + burn + 1, ncol = n)
-
-    Sigma11 <- Sigma[1, 1]
-    Sigma12 <- t(as.matrix(Sigma[1, -1]))
-    Sigma21 <- as.matrix(Sigma[-1, 1])
-    Sigma22 <- Sigma[-1, -1]
-
-    Sigma.x <- Sigma11 - Sigma12 %*% solve(Sigma22) %*% Sigma21
-
-    for (iter in 2:(sample.amt + burn + 1)) {
-        
-        for (i in 1:n) {
-               
-            if (i + 1 > n) {
-            
-                x.star <- c(x[iter, 0:(i - 1)])
-            
-            } else {
-            
-                x.star <- c(x[iter - 1, (i + 1):n], x[iter, 0:(i - 1)])
-                
-            }
-
-            mu.x <- Sigma12 %*% solve(Sigma22) %*% x.star
-            
-            x[iter, i] <- rnorm(1, mu.x, sqrt(Sigma.x))
-        
-        }
-
-    }
-    
-    x[-c(1:(burn + 1)), ]
-
-}
-
-MVN.F.Gibbs.Sampling <- function(ll, sample.amt, Sigma, tails = '2-sided', x.init = 0, burn = 1000){
-
-    n <- dim(Sigma)[1]
-    
-    samp <- MVN.Gibbs.Sampling(sample.amt, Sigma, x.init = x.init, burn = burn)
-    
-    P.empirical(samp, ll, sample.amt, tails)
-    
-    
-
-}
-
-MVN.Q.Gibbs.Sampling <- function(p, sample.amt, Sigma, tails = '2-sided', x.init = 0, burn = 1000, search.interval = c(1, 5)){
-
-    n <- dim(Sigma)[1]
-    
-    samp <- MVN.Gibbs.Sampling(sample.amt, Sigma, x.init = x.init, burn = burn)
-    
-    uniroot(
-        root.P.empirical, 
-        interval = search.interval, 
-        samp = samp, 
-        p = p, 
-        nlength = n, 
-        sample.amt = sample.amt, 
-        tails = tails
-    )$root
-
-}
-
-####################################################################################################################################################
     #parts of getting L
 ####################################################################################################################################################
 
@@ -321,35 +86,6 @@ get.L.mvt <- function(
 ####################################################################################################################################################
     #get L by multivariate Normal
 ####################################################################################################################################################
-
-#root.mvn.F <- function(K, m, nu, Y, sigma, pu, alternative = '2-sided') {
-#                                                            #The purpose of this function is
-#    s <- length(Y)                                          #to obtain appropriate K
-#                                                            #by multivariate normal
-#    L <- K / sqrt((m - 1) / m * nu) * Y * c4.f(nu)          #
-#
-#    pp <- lapply(
-#            1:s,
-#            function(i){
-#            
-#                LL <- rep(L[i], m)
-#                ifelse(
-#                    alternative == '2-sided',
-#                    pmvnorm(lower = -LL, upper = LL, sigma = sigma),
-#                    pmvnorm(lower = rep(-Inf, m), upper = LL, sigma = sigma)
-#                )
-#            
-#            } 
-#    
-#    )
-#    
-#    pp <- mean(unlist(pp))
-#    
-#    pu - pp
-#
-#
-#}
-
 
 joint.pdf.mvn.chisq <- function(Y, K, m, nu, sigma, alternative = '2-sided') {
 
@@ -585,7 +321,7 @@ get.FAP0 <- function(
             ,off.diag = NULL
             ,alternative = '2-sided'
             ,maxiter = 10000
-            ,method = 'direct'
+            #,method = 'direct'
             ,indirect_subdivisions = 100L
             ,indirect_tol = .Machine$double.eps^0.25
             #,indirect.maxsim = 10000
@@ -595,7 +331,9 @@ get.FAP0 <- function(
             #,MCMC.burn = 1000
 ){
 
-    Phase1 = TRUE
+    method <- 'direct'
+
+    Phase1 <- TRUE
     
     is.int <- ifelse(nu == round(nu), 1, 0)
     
