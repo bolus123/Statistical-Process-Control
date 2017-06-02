@@ -367,6 +367,7 @@ get.FAP0 <- function(
 ####################################################################################################################################################
     #Example about table 6.3 (Montgomery, 2013)
 ####################################################################################################################################################
+#source('https://raw.githubusercontent.com/bolus123/Statistical-Process-Control/master/MultivariateT_Normal_SPC.R')
 #
 #x <- matrix(c(
 #    74.03	,	74.002	,	74.019	,	73.992	,	74.008	,
@@ -406,20 +407,25 @@ get.FAP0 <- function(
 #
 #k <- get.L(m, m * (n - 1), 0.05)$K
 #
-#LCL <- x.bar.bar - k * sigma.v
-#UCL <- x.bar.bar + k * sigma.v
+#LCL <- x.bar.bar - k * sigma.v / sqrt(n)
+#UCL <- x.bar.bar + k * sigma.v / sqrt(n)
 #
 #
 #x.bar <- rowMeans(x)
 #
 #
-#plot(c(1, m), c(LCL * 9997/10000, UCL * 10003/10000), xlab = 'Subgroup', ylab = 'ID measurements', type = 'n')
+#plot(c(1, m), c(LCL * 49997/50000, UCL * 50003/50000), xlab = 'Subgroup', ylab = 'Sample Means', type = 'n')
 #points(1:m, x.bar, type = 'o')
 #points(c(-1, m + 2), c(LCL, LCL), type = 'l', col = 'red')
 #points(c(-1, m + 2), c(UCL, UCL), type = 'l', col = 'red')
 #points(c(-1, m + 2), c(x.bar.bar, x.bar.bar), type = 'l', col = 'blue')
-#text(20, UCL * 10001/10000, round(UCL, 4))
-#text(20, LCL * 9999/10000, round(LCL, 4))
+#text(20, UCL * 50001/50000, paste('UCL = ', round(UCL, 4)))
+#text(20, LCL * 49999/50000, paste('LCL = ', round(LCL, 4)))
+#
+#pos <- c(rep(c(3, 1), 5), 1, 3, 3, 1, 3, 1, 1, 3, 1, 3, 1, 3, 1, 3, 1) #rep(c(1, 3), 8))[-26]
+#
+#text(1:m, x.bar, round(x.bar, 4), cex = 0.7, pos = pos)
+#
 #
 ####################################################################################################################################################
     #Example about how to get K and L by FAP0
