@@ -22,6 +22,30 @@ corr.f <- function(m, off.diag = - 1 / (m - 1)){
     
 }
 
+first.der.c4.f <- function(nu){
+
+    beta.part <- (beta(nu / 2， 1 / 2)) ^ (-1)
+    
+    digamma1 <- digamma(nu / 2)
+    digamma2 <- digamma(nu / 2 + 1 / 2)
+    
+    - sqrt(2 * pi) / 2 * beta.part * ((digamma1 - digamma2) / sqrt(nu) + nu ^ (- 3 /2))
+
+}
+
+first.der.cons.f <- function(nu, tau){
+
+    1 / 2 * (1 - 1 / (nu - tau)) ^ (- 1 / 2) * (nu - tau) ^ - 2
+
+}
+
+cons.f <- function(nu, tau){
+
+    sqrt((nu - tau - 1) / (nu - tau))
+
+}
+
+
 ####################################################################################################################################################
     #get L by multivariate T
 ####################################################################################################################################################
@@ -289,7 +313,7 @@ get.L <- function(
     
     } else {                                       #using multivariate normal to obtain L and K
     
-        if (is.int == 0) cat('Nu is not an integer. The indirect method will be conducted.', '\n')
+        if (is.int == 0 & method == 'direct') cat('Nu is not an integer. The indirect method will be conducted.', '\n')
     
         get.L.mvn(
             m = m
