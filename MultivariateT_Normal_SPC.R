@@ -24,7 +24,7 @@ corr.f <- function(m, off.diag = - 1 / (m - 1)){
 
 first.der.c4.f <- function(nu){
 
-    beta.part <- (beta(nu / 2， 1 / 2)) ^ (-1)
+    beta.part <- (beta(nu / 2, 1 / 2)) ^ (-1)
     
     digamma1 <- digamma(nu / 2)
     digamma2 <- digamma(nu / 2 + 1 / 2)
