@@ -7,7 +7,7 @@ source('https://raw.githubusercontent.com/bolus123/Statistical-Process-Control/m
 ####################################################################################################################################################
 
 
-get.U.Modi.Stat <- function(X, Y){               
+get.U.Modi.Stat <- function(X, Y, type = 'exact'){               
                                                                #The purpose of this function is 
                                                                #to calculate U.modified by the simplified version of U modified
     m <- length(X)                                      
@@ -34,14 +34,20 @@ get.U.Modi.Stat <- function(X, Y){
     P.bar <- sum(P) / m
     S.bar <- sum(S) / n
     
-    U.modified <- (sum(P) - sum(S)) / 2 / sqrt(sum((S - S.bar) ^ 2) + sum((P - P.bar) ^ 2) + P.bar * S.bar)
-                                                                                     #According to 3.2
+    if (type == 'exact') {
+        U.modified <- (sum(P) - sum(S)) / 2 / sqrt((m - 1) / m * sum((S - S.bar) ^ 2) + (n - 1) / n * sum((P - P.bar) ^ 2) + P.bar * S.bar)
+    }
+    
+    else {
+        U.modified <- (sum(P) - sum(S)) / 2 / sqrt(sum((S - S.bar) ^ 2) + sum((P - P.bar) ^ 2) + P.bar * S.bar)
+    }                                                                                 #According to 3.2
+    
     U.modified
   
 }
 
 
-get.U.Modi.Dist <- function(m, n, cores = 1, maxiter = 1000){
+get.U.Modi.Dist <- function(m, n, cores = 1, type = 'exact', maxiter = 1000){
                                                            #The purpose of this function is
                                                            #to obtain the pmf of U.modified under the null hypothesis 
                                                            #by keeping generating 2 samples 
@@ -50,7 +56,7 @@ get.U.Modi.Dist <- function(m, n, cores = 1, maxiter = 1000){
 
     cl <- makeCluster(cores)
     
-    clusterExport(cl, c('m', 'n', 'get.U.Modi.Stat'), envir = environment())
+    clusterExport(cl, c('m', 'n', 'get.U.Modi.Stat', 'type'), envir = environment())
     
     U.modified.dist <- parLapply(                           #This is a loop to generate samples
         cl,                                                 #and then calculate its U modified
@@ -58,7 +64,7 @@ get.U.Modi.Dist <- function(m, n, cores = 1, maxiter = 1000){
         function(X){                                        #
             x <- rnorm(m)                                   #
             y <- rnorm(n)                                   #
-            get.U.Modi.Stat(x, y)                           #
+            get.U.Modi.Stat(x, y, type)                     #
         }                                                   #
                                                             #
                                                             #
@@ -80,7 +86,7 @@ get.U.Modi.Dist <- function(m, n, cores = 1, maxiter = 1000){
 }
 
 
-FP.test <- function(x, y, alternative = '2-sided', alpha = 0.05, cores = 1, maxiter = 1000){
+FP.test <- function(x, y, alternative = '2-sided', alpha = 0.05, type = 'exact', cores = 1, maxiter = 1000){
                                                             #The purpose of this function is 
                                                             #to test 2 samples by WM test with FP modification.
                                                             #The distribution of statistics will be obtained by simulations
@@ -91,7 +97,7 @@ FP.test <- function(x, y, alternative = '2-sided', alpha = 0.05, cores = 1, maxi
     
     U.modified.dist <- cbind(U.modified.pmf[, 1], cumsum(U.modified.pmf[, 2]))
 
-    U.modified.stat <- get.U.Modi.Stat(x, y)
+    U.modified.stat <- get.U.Modi.Stat(x, y, type)
     
     if (alternative == 'less') {                                                              #For testing X < Y
                                                                                               #

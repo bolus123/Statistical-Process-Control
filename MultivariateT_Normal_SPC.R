@@ -5,7 +5,7 @@ library(mvtnorm)
 library(adehabitatLT)
 ####################################################################################################################################################
 
-source('https://raw.githubusercontent.com/bolus123/Statistical-Process-Control/master/MKLswitch.R')
+#source('https://raw.githubusercontent.com/bolus123/Statistical-Process-Control/master/MKLswitch.R')
 
 ####################################################################################################################################################
     #parts of getting L
@@ -54,15 +54,10 @@ get.L.mvt <- function(
                  m 
                  ,nu
                  ,FAP = 0.1
-                 #,ARL = 370
                  ,Phase1 = TRUE
                  ,off.diag = NULL
                  ,alternative = '2-sided'
                  ,maxiter = 10000
-                 #,MCMC = FALSE
-                 #,MCMC.search.interval = c(1, 5)
-                 #,MCMC.maxsim = 10000
-                 #,MCMC.burn = 1000
 
 ){
                                                                               #The purpose of this function is 
@@ -115,7 +110,6 @@ joint.pdf.mvn.chisq <- function(Y, K, m, nu, sigma, alternative = '2-sided') {
 
     s <- length(Y)
 
-    #L <- K / sqrt((m - 1) / m * nu) * Y * c4.f(nu)
     L <- K / sqrt((m - 1) / m * nu) * Y / c4.f(nu)
     
     dpp <- lapply(
@@ -184,26 +178,17 @@ root.mvn.F <- function(K, m, nu, sigma, pu, alternative = '2-sided', subdivision
 
 }
 
-#sigma = corr.f(20)
-#joint.pdf.mvn.chisq(1, 3, 20, 80, sigma, alternative = '2-sided')
-#root.mvn.F(3, 20, 80, sigma, 0.7)
 
 get.L.mvn <- function(
                  m
                  ,nu
                  ,FAP = 0.1
-                 #,ARL = 370
                  ,Phase1 = TRUE
                  ,off.diag = NULL
                  ,alternative = '2-sided'
-                 #,maxsim = 10000
                  ,maxiter = 10000
                  ,subdivisions = 2000
-                 ,tol = 1e-2   
-                 #,MCMC = FALSE
-                 #,MCMC.search.interval = c(1, 5)
-                 #,MCMC.maxsim = 10000
-                 #,MCMC.burn = 1000
+                 ,tol = 1e-2 
 
 ){                                                          #The purpose of this function is 
                                                             #to obtain L and K based on
@@ -233,11 +218,6 @@ get.L.mvn <- function(
     
     } else {
 
-        #L <- ifelse(
-        #        alternative == '2-sided',
-        #        qmvnorm(pu, sigma = corr.P, tail = 'both.tails', maxiter = maxiter)$quantile,
-        #        qmvnorm(pu, sigma = corr.P, maxiter = maxiter)$quantile
-        #    )
 
         K <- uniroot(
                 root.mvn.F,
@@ -256,9 +236,6 @@ get.L.mvn <- function(
 
     }
     
-    
-    #K <- mean(L / Y * sqrt((m - 1) / m * nu)) #/ c4.f(nu))
-    
     L <- K / c4.f(nu) * sqrt(m / (m - 1))
     
     list(L = L, K = K)
@@ -274,19 +251,13 @@ get.L <- function(
             m
             ,nu
             ,FAP = 0.1
-            #,ARL = 370
-            #,Phase1 = TRUE
             ,off.diag = NULL
             ,alternative = '2-sided'
             ,maxiter = 10000
             ,method = 'direct'
             ,indirect_subdivisions = 100L
             ,indirect_tol = .Machine$double.eps^0.25
-            #,indirect.maxsim = 10000
-            #,MCMC = FALSE
-            #,MCMC.search.interval = c(1, 5)
-            #,MCMC.maxsim = 10000
-            #,MCMC.burn = 1000
+
 
 ){                                                  #The purpose of this function is to obtain L and K
                                                     #by multivariate T or multivariate normal.
@@ -340,19 +311,12 @@ get.FAP0 <- function(
             K
             ,m
             ,nu
-            #,ARL = 370
-            #,Phase1 = TRUE
             ,off.diag = NULL
             ,alternative = '2-sided'
             ,maxiter = 10000
-            #,method = 'direct'
             ,indirect_subdivisions = 100L
             ,indirect_tol = .Machine$double.eps^0.25
-            #,indirect.maxsim = 10000
-            #,MCMC = FALSE
-            #,MCMC.search.interval = c(1, 5)
-            #,MCMC.maxsim = 10000
-            #,MCMC.burn = 1000
+
 ){
 
     method <- 'direct'
@@ -378,11 +342,7 @@ get.FAP0 <- function(
             1 - pmvt(lower = -Inf, upper = ll, df = nu, corr = corr.P, algorithm = TVPACK, abseps = 1e-12)
         )
     
-    } #else{
-      #
-      #
-    #
-    #}
+    }
 
 
 
@@ -435,8 +395,10 @@ get.FAP0 <- function(
 #
 #x.bar <- rowMeans(x)
 #
+#plot(c(1, m), c(LCL * 49997/50000, UCL * 50003/50000), xaxt = "n", xlab = 'Subgroup', ylab = 'Sample Means', type = 'n')
 #
-#plot(c(1, m), c(LCL * 49997/50000, UCL * 50003/50000), xlab = 'Subgroup', ylab = 'Sample Means', type = 'n')
+#axis(side = 1, at = 1:25)
+#
 #points(1:m, x.bar, type = 'o')
 #points(c(-1, m + 2), c(LCL, LCL), type = 'l', col = 'red')
 #points(c(-1, m + 2), c(UCL, UCL), type = 'l', col = 'red')
