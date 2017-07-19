@@ -28,4 +28,11 @@ ARL0.f <- function(k, m, n, eta = 1, subdivisions = 100, alternative = '2-sided'
 
 }
 
-uniroot(ARL0.f, interval = c(0.0001, 9), m = 100, n = 20, ARL = 500, eta = 1)$root
+Welch.K <- function(m, n, ARL, eta, search.lower = 0.0001, search.upper = 9, subdivisions = 100){
+
+	uniroot(ARL0.f, interval = c(search.lower, search.upper), m = m, n = n, ARL = ARL, eta = eta, subdivisions = subdivisions)$root
+
+}
+
+Welch.K(100, 5, 500, 1, subdivisions = 1000)
+##uniroot(ARL0.f, interval = c(0.0001, 9), m = 100, n = 20, ARL = 500, eta = 1)$root
