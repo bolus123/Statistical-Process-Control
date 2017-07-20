@@ -273,7 +273,7 @@ get.RL <- function(
                 mu <- mean(x)                                                                          #get mean
                 V <- sd(x)                                                                          #get variance
                 
-                Ch <- SPC.Chart(CS, mu, L, sqrt(V) / sqrt(m), graph = FALSE)                                     #get LCL and UCL
+                Ch <- SPC.Chart(CS, mu, L, V / sqrt(m), graph = FALSE)                                     #get LCL and UCL
             
             
             } else if (Chart == 'FP'){                                                                 #do MW chart with FP replacement
