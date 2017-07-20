@@ -34,5 +34,5 @@ Welch.K <- function(m, n, ARL, eta, search.lower = 0.0001, search.upper = 9, sub
 
 }
 
-Welch.K(100, 5, 500, 1, subdivisions = 1000)
+Welch.K(100, 10, 500, 1, subdivisions = 1000)
 ##uniroot(ARL0.f, interval = c(0.0001, 9), m = 100, n = 20, ARL = 500, eta = 1)$root
