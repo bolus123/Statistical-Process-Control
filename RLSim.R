@@ -250,6 +250,8 @@ get.RL <- function(
     
     x <- get.data(m, 1, type = xtype)                                                                  #generate x
     
+	cat('k =', L, '\n')
+	
     repeat{
     
         if (is.null(n)) {
@@ -269,7 +271,7 @@ get.RL <- function(
                                                                                                        #
                 CS <- rowMeans(y)                                                                      #get charting staitsitcs
                 mu <- mean(x)                                                                          #get mean
-                V <- var(as.vector(x))                                                                          #get variance
+                V <- sd(x)                                                                          #get variance
                 
                 Ch <- SPC.Chart(CS, mu, L, sqrt(V) / sqrt(m), graph = FALSE)                                     #get LCL and UCL
             
