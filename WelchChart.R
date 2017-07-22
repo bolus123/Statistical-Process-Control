@@ -5,34 +5,34 @@ pc.f <- function(z, k, m, n, eta = 1, alternative = '2-sided'){
     
     nu <- nu.num / nu.den
     
-    t <- k / sqrt(1 + z * eta * m / n)
+    x <- k / sqrt(1 + z * eta * m / n)
     
-    pt(t, nu) - pt(-t, nu)
+    pt(x, nu) - pt(-x, nu)
 
 
 }
 
-ARL.f <- function(k, m, n, eta = 1, alternative = '2-sided', subdivisions = 100){
+ARL.f <- function(k, m, n, eta = 1, alternative = '2-sided', subdivisions = 100, rel.tol = .Machine$double.eps^0.25, abs.tol = rel.tol){
 
-    ARLc.f <- function(z, k, m, n, eta = 1, alternative = alternative) 1 / (1 - pc.f(z, k, m, n, eta = eta, alternative = alternative)) * df(z, n - 1, m - 1)
+    ARLc.f <- function(z, k, m, n, eta = 1, alternative = alternative) (1 - pc.f(z, k, m, n, eta = eta, alternative = alternative)) ^ (-1) * df(z, n - 1, m - 1)
 
-    integrate(ARLc.f, lower = 0, upper = Inf, k = k, m = m, n = n, eta = eta, alternative = alternative, subdivisions = subdivisions)$value
+    integrate(ARLc.f, lower = 0, upper = Inf, k = k, m = m, n = n, eta = eta, alternative = alternative, subdivisions = subdivisions, rel.tol = rel.tol, abs.tol = abs.tol)$value
 
 
 }
 
 
-ARL0.f <- function(k, m, n, eta = 1, subdivisions = 100, alternative = '2-sided', ARL = 500){
+ARL0.f <- function(k, m, n, eta = 1, subdivisions = 100, ARL = 500, alternative = '2-sided', rel.tol = .Machine$double.eps^0.25, abs.tol = rel.tol){
 
-    ARL.f(k, m, n, eta = eta, alternative = alternative, subdivisions = subdivisions) - ARL
-
-}
-
-Welch.K <- function(m, n, ARL, eta, search.lower = 0.0001, search.upper = 9, subdivisions = 100){
-
-	uniroot(ARL0.f, interval = c(search.lower, search.upper), m = m, n = n, ARL = ARL, eta = eta, subdivisions = subdivisions)$root
+    ARL.f(k, m, n, eta = eta, alternative = alternative, subdivisions = subdivisions, rel.tol = rel.tol, abs.tol = abs.tol) - ARL
 
 }
 
-Welch.K(100, 10, 500, 1, subdivisions = 1000)
+Welch.K <- function(m, n, ARL, eta, search.lower = 0.0001, search.upper = 9, subdivisions = 100, rel.tol = .Machine$double.eps^0.25, abs.tol = rel.tol){
+
+	uniroot(ARL0.f, interval = c(search.lower, search.upper), m = m, n = n, ARL = ARL, eta = eta, subdivisions = subdivisions, rel.tol = rel.tol, abs.tol = abs.tol)$root
+
+}
+
+Welch.K(100, 10, 500, 1, search.lower = 0.0001, search.upper = 9, subdivisions = 1000)
 ##uniroot(ARL0.f, interval = c(0.0001, 9), m = 100, n = 20, ARL = 500, eta = 1)$root
