@@ -7,7 +7,12 @@ source('https://raw.githubusercontent.com/bolus123/Statistical-Process-Control/m
                         
 #source('https://raw.githubusercontent.com/bolus123/Statistical-Process-Control/Nonparametric-Shewhart/precedence%20chart.R')
 #                        #Getting the function of precedance test
-                        
+     
+####################################################################################################################################################
+
+c4.f <- function(nu) sqrt(2 / nu) * 1 / beta(nu / 2, 1 / 2) * sqrt(pi) 
+
+	 
 ####################################################################################################################################################
     #Simulate data
 ####################################################################################################################################################
@@ -287,7 +292,17 @@ get.RL <- function(
                 
                 Ch <- SPC.Chart(CS, 0, L, 1, graph = FALSE)                                            #get LCL and UCL
                                                                                                        #with 0 mean and 1 variance by definition
-            }
+            } else if (Chart == 'T.c4.phase2'){
+			
+				CS <- rowMeans(y)                                                                      #get charting staitsitcs
+                mu <- mean(x)                                                                          #get mean
+                V <- sd(x) / c4.f(m - 1)                                                               #get variance
+                
+				
+                Ch <- SPC.Chart(CS, mu, L, V, graph = FALSE)                  
+			
+			
+			}
         
         }
         
