@@ -55,7 +55,7 @@ get.L.mvt <- function(
                  ,nu
                  ,FAP = 0.1
                  ,Phase1 = TRUE
-                 ,off.diag = NULL
+                 ,off.diag = -1/(m - 1)
                  ,alternative = '2-sided'
                  ,maxiter = 10000
 
@@ -98,7 +98,7 @@ get.L.mvt <- function(
     
     K <- L * c4.f(nu) * sqrt((m - 1) / m)             #get K
    
-    list(L = L, K = K)
+    list(l = L, k = K)
 
 }
 
@@ -184,7 +184,7 @@ get.L.mvn <- function(
                  ,nu
                  ,FAP = 0.1
                  ,Phase1 = TRUE
-                 ,off.diag = NULL
+                 ,off.diag = -1/(m - 1)
                  ,alternative = '2-sided'
                  ,maxiter = 10000
                  ,subdivisions = 2000
@@ -194,7 +194,7 @@ get.L.mvn <- function(
                                                             #to obtain L and K based on
     MCMC <- FALSE                                           #multivariate normal.
                                                             #MCMC part is not available now.
-    if (is.null(off.diag)) off.diag <- ifelse(Phase1 == TRUE, - 1 /(m - 1), 1 / (m + 1))
+    #if (is.null(off.diag)) off.diag <- ifelse(Phase1 == TRUE, - 1 /(m - 1), 1 / (m + 1))
     
     
     corr.P <- corr.f(m = m, off.diag = off.diag)  
@@ -238,7 +238,7 @@ get.L.mvn <- function(
     
     L <- K / c4.f(nu) * sqrt(m / (m - 1))
     
-    list(L = L, K = K)
+    list(l = L, k = K)
     
 
 }
@@ -251,7 +251,7 @@ get.L <- function(
             m
             ,nu
             ,FAP = 0.1
-            ,off.diag = NULL
+            ,off.diag = -1/(m - 1)
             ,alternative = '2-sided'
             ,maxiter = 10000
             ,method = 'direct'
@@ -266,7 +266,7 @@ get.L <- function(
     Phase1 <- TRUE
     
     
-    if (is.null(off.diag)) off.diag <- ifelse(Phase1 == TRUE, - 1 /(m - 1), 1 / (m + 1))
+    #if (is.null(off.diag)) off.diag <- ifelse(Phase1 == TRUE, - 1 /(m - 1), 1 / (m + 1))
 
     is.int <- ifelse(nu == round(nu), 1, 0)
 
@@ -311,7 +311,7 @@ get.FAP0 <- function(
             K
             ,m
             ,nu
-            ,off.diag = NULL
+            ,off.diag = -1/(m - 1)
             ,alternative = '2-sided'
             ,maxiter = 10000
             ,indirect_subdivisions = 100L
@@ -325,7 +325,7 @@ get.FAP0 <- function(
     
     is.int <- ifelse(nu == round(nu), 1, 0)
     
-    if (is.null(off.diag)) off.diag <- ifelse(Phase1 == TRUE, - 1 /(m - 1), 1 / (m + 1))
+    #if (is.null(off.diag)) off.diag <- ifelse(Phase1 == TRUE, - 1 /(m - 1), 1 / (m + 1))
     
     corr.P <- corr.f(m = m, off.diag = off.diag)
     
