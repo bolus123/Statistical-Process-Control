@@ -347,7 +347,7 @@ RL.stat.sim <- function(
     
     clusterExport(
             cl, 
-            c('m', 'n', 'Chart', 'xtype', 'ytype', 'L', 'shift', 'subgroup.amt'), 
+            c('m', 'n', 'Chart', 'xtype', 'ytype', 'L', 'shift', 'scale', 'subgroup.amt'), 
             envir = environment()
     )
     
