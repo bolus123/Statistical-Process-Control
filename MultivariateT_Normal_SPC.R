@@ -254,9 +254,9 @@ get.L <- function(
             ,off.diag = -1/(m - 1)
             ,alternative = '2-sided'
             ,maxiter = 10000
-            ,method = 'direct'
-            ,indirect_subdivisions = 100L
-            ,indirect_tol = .Machine$double.eps^0.25
+            #,method = 'direct'
+            #,indirect_subdivisions = 100L
+            #,indirect_tol = .Machine$double.eps^0.25
 
 
 ){                                                  #The purpose of this function is to obtain L and K
@@ -265,11 +265,17 @@ get.L <- function(
                                                     #that I do not recommend.
     Phase1 <- TRUE
     
+	method <- 'direct'				###
     
     #if (is.null(off.diag)) off.diag <- ifelse(Phase1 == TRUE, - 1 /(m - 1), 1 / (m + 1))
 
     is.int <- ifelse(nu == round(nu), 1, 0)
 
+	if (is.int == 0) {
+			cat('Nu is not an integer. Please check.', '\n')
+	}
+	
+	
     if (method == 'direct' & is.int == 1) {                       #using multivariate T to obtain L and K
     
         get.L.mvt(
@@ -282,24 +288,26 @@ get.L <- function(
             ,maxiter = maxiter
         )
     
-    } else {                                       #using multivariate normal to obtain L and K
+    } #else {                                       #using multivariate normal to obtain L and K
     
-        if (is.int == 0 & method == 'direct') cat('Nu is not an integer. The indirect method will be conducted.', '\n')
+        #if (is.int == 0 & method == 'direct') {
+		#	cat('Nu is not an integer. The indirect method will be conducted.', '\n')
+		#}
+		#
+        #get.L.mvn(
+        #    m = m
+        #    ,nu = nu
+        #    ,FAP = FAP
+        #    ,Phase1 = Phase1
+        #    ,off.diag = off.diag
+        #    ,alternative = alternative
+        #    #,maxsim = indirect.maxsim
+        #    ,subdivisions = indirect_subdivisions
+        #    ,maxiter = maxiter
+        #    ,tol = indirect_tol
+        #)
     
-        get.L.mvn(
-            m = m
-            ,nu = nu
-            ,FAP = FAP
-            ,Phase1 = Phase1
-            ,off.diag = off.diag
-            ,alternative = alternative
-            #,maxsim = indirect.maxsim
-            ,subdivisions = indirect_subdivisions
-            ,maxiter = maxiter
-            ,tol = indirect_tol
-        )
-    
-    }
+    #}
 
 
 }
